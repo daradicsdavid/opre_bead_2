@@ -12,11 +12,10 @@ void signalFromChild(int i) {
 }
 
 void startSimulationServer(int childPid, int *childToParent, int *parentToChild) {
-    kill(childPid, SIGKILL);
     struct Order *orders = generateSimulatedOrders();
     struct Order *doneOrders[50];
     signal(SIGUSR1, signalFromChild);
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 1; ++i) {
         printf("Sending orders \n");
         sendOrders(orders, 2, parentToChild);
         sleep(3);
