@@ -1,27 +1,47 @@
 #include <signal.h>
 #include <stdio.h>
-#include <zconf.h>
 #include <malloc.h>
+#include <unistd.h>
 #include "communication/pipe.h"
 #include "simulation/simulatedOrders.h"
 #include "print/print.h"
+#include "filter/filter.h"
+#include "delete/delete.h"
+#include "file/file.h"
 
 void signalFromChild(int i) {
     signal(SIGUSR1, signalFromChild); /* reset signal */
-    printf("Message from child!!!\n");
+    printf("Child finished an order!\n");
 }
 
 void startSimulationServer(int childPid, int *childToParent, int *parentToChild) {
-    struct Order *orders = generateSimulatedOrders();
-    struct Order *doneOrders[50];
+    int numberOfOrders = 0;
+    struct Order *orders = generateSimulatedOrders(&numberOfOrders);
+    struct Order doneOrders[50];
+    int numberOfDoneOrders = readDoneOrdersFromFile(doneOrders);
+
     signal(SIGUSR1, signalFromChild);
-    for (int i = 0; i < 1; ++i) {
-        printf("Sending orders \n");
-        sendOrders(orders, 2, parentToChild);
-        sleep(3);
+    while (numberOfOrders > 0) {
+        int selectedOrdersSize = 0;
+        struct Order *ordersToSend = selectOrdersToSend(orders, numberOfOrders, &selectedOrdersSize);
+        sendOrders(ordersToSend, selectedOrdersSize, parentToChild);
+        int finishedOrders = 0;
+        if (receiveReceipt(childToParent, &finishedOrders)) {
+            if (finishedOrders == selectedOrdersSize) {
+                deleteFinishedOrders(orders, &numberOfOrders, ordersToSend, finishedOrders, doneOrders,
+                                     &numberOfDoneOrders);
+            }
+        }
+        free(ordersToSend);
+
     }
+    for (int i = 0; i < numberOfDoneOrders; ++i) {
+        printOrder(doneOrders[i]);
+    }
+    writeDoneOrdersToFile(doneOrders, numberOfDoneOrders);
     free(orders);
+    free(doneOrders);
+    sleep(3);
     kill(childPid, SIGKILL);
-    printf("Child pid: %i \n", childPid);
 }
 

@@ -24,3 +24,25 @@ void writeToFile(struct Order orders[], int orderNumber) {
     fwrite(orders, sizeof(struct Order), (size_t) orderNumber, ptr);
     fclose(ptr);
 }
+
+int readDoneOrdersFromFile(struct Order *orders) {
+
+
+    FILE *ptr = fopen("done_orders.dat", "rb");
+    if (!ptr) return 0;
+
+    int n = 0;
+    for (n = 0; !feof(ptr); ++n) {
+        if (fread(&orders[n], sizeof(struct Order), 1, ptr) != 1) break;
+    }
+
+    fclose(ptr);
+    return n;
+}
+
+void writeDoneOrdersToFile(struct Order *orders, int orderNumber) {
+    FILE *ptr = fopen("done_orders.dat", "wb");
+    if (!ptr) return;
+    fwrite(orders, sizeof(struct Order), (size_t) orderNumber, ptr);
+    fclose(ptr);
+}

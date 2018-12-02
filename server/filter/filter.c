@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <malloc.h>
 #include "../model/order.h"
 #include "../print/print.h"
 #include "../model/boolean.h"
@@ -39,4 +40,22 @@ void filterOrdersByPerformanceRequirement(struct Order orders[], int orderNumber
     } else {
         printf("\n");
     }
+}
+
+struct Order *selectOrdersToSend(struct Order *orders, int numberOfOrders, int *selectedOrdersSize) {
+    (*selectedOrdersSize) = 0;
+    struct Order *selected = malloc(numberOfOrders * sizeof(struct Order));
+    int i = 0;
+    time_t now;
+    time(&now);
+    while (i < numberOfOrders && (*selectedOrdersSize) < 2) {
+        if ((*selectedOrdersSize) == 0) {
+            selected[(*selectedOrdersSize)++] = orders[i];
+        }
+        if (difftime(now, orders[i].time) > 60 * 60 * 24 * 7) {
+            selected[(*selectedOrdersSize)++] = orders[i];
+        }
+        i++;
+    }
+    return selected;
 }

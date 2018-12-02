@@ -7,4 +7,7 @@
 
 int deleteOrder(struct Order orders[], int *orderNumber, int deleteIndex);
 
+void deleteFinishedOrders(struct Order orders[], int *numberOfOrders, struct Order finishedOrders[],
+                          int numberOfFinishedOrders, struct Order doneOrders[], int *numberOfDoneOrders);
+
 #endif //OP_BEAD_DELETE_H

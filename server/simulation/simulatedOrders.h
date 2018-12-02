@@ -3,6 +3,6 @@
 
 #include "../model/order.h"
 
-struct Order* generateSimulatedOrders();
+struct Order *generateSimulatedOrders(int *numberOfOrders);
 
 #endif //OP_BEAD_SIMULATED_ORDERS_H

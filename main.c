@@ -9,9 +9,6 @@
 #include "server/model/boolean.h"
 #include "server/read/read.h"
 
-void signalFromChild(int pid);
-
-
 int main() {
     int parentProcessId = getpid();
     int parentToChild[2];

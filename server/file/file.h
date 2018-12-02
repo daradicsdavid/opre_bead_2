@@ -9,4 +9,8 @@ int readFromFile(struct Order *orders);
 
 void writeToFile(struct Order orders[], int orderNumber);
 
+int readDoneOrdersFromFile(struct Order *orders);
+
+void writeDoneOrdersToFile(struct Order *orders, int orderNumber);
+
 #endif //OP_BEAD_FILE_H

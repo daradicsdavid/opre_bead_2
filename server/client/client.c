@@ -1,5 +1,4 @@
 #include <signal.h>
-#include <zconf.h>
 #include <stdio.h>
 #include "../communication/pipe.h"
 #include "../model/order.h"
@@ -14,16 +13,20 @@ void signalFromParent(int i) {
 }
 
 void startClient(int parentProcessId, int childToParent[2], int parentToChild[2]) {
-    printf("Client started!\n");
     signal(SIGKILL, signalFromParent);
-    while (true) {
-        struct Order *orders = malloc(2 * sizeof(struct Order));
-        int result = receiveOrders(orders, parentToChild);
+    while (1) {
+        struct Order *orders;
+        int numberOfOrders;
+        int result = receiveOrders(&orders, parentToChild, &numberOfOrders);
         if (result) {
-            printOrder(orders[0]);
-            printOrder(orders[1]);
-            kill(parentProcessId, SIGUSR1);
+            for (int i = 0; i < numberOfOrders; ++i) {
+                printOrder(orders[i]);
+                kill(parentProcessId, SIGUSR1);
+            }
+            sendReceipt(numberOfOrders, childToParent);
             free(orders);
+        } else {
+            break;
         }
     }
 }
